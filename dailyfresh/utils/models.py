@@ -10,6 +10,7 @@ class BaseModel(models.Model):
     update_date = models.DateTimeField(auto_now=True)
     # 逻辑删除
     isDelete = models.BooleanField(default=False)
-    #这个类不需要生成一张表，需要定义成抽象类
+
+    # 这个类不需要生成一张表，需要定义成抽象类
     class Meta:
-        abstract=True
+        abstract = True

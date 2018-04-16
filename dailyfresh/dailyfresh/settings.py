@@ -108,6 +108,5 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
-
-#指定用户认证的类:直接写应用.类
+# 指定用户认证的类:直接写应用.类
 AUTH_USER_MODEL = 'df_user.User'
