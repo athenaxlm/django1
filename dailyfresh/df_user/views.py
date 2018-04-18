@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import View
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from .models import User
+from utils import celery_tasks
 
 
 # Create your views here.
@@ -64,12 +65,13 @@ def username(request):
 
 def send_active_mail(request):
     user = User.objects.get(pk=1)
-    user_dict = {'user_id': user.id}
-    serializer = Serializer(settings.SECRET_KEY, expires_in=300)
-    str1 = serializer.dumps(user_dict).decode()
-
-    mail_body = '<a href="http://127.0.0.1:8000/user/active/%s">点击激活</a>' % str1
-    send_mail('用户激活', '', settings.EMAIL_FROM, [user.email], html_message=mail_body)
+    # user_dict = {'user_id': user.id}
+    # serializer = Serializer(settings.SECRET_KEY, expires_in=300)
+    # str1 = serializer.dumps(user_dict).decode()
+    #
+    # mail_body = '<a href="http://127.0.0.1:8000/user/active/%s">点击激活</a>' % str1
+    # send_mail('用户激活', '', settings.EMAIL_FROM, [user.email], html_message=mail_body)
+    celery_tasks.send_active_mail.delay(user.email, user.id)
     return HttpResponse('请到邮箱中激活')
 
 
@@ -93,3 +95,11 @@ def user_active(request, user_str):
     user.save()
     # 4.提示：转到登录页
     return redirect('/user/login')
+
+
+# 1.将代码定义到函数中
+# 2.为函数添加装饰器@app.task
+# 3.在视图中调用：函数.delay(参数)
+# 4.复制项目代码一份
+# 5.在复制出来的代码中修改任务文件，加载django的配置
+# 6.在复制出来的代码下，开启新进程
