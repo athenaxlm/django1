@@ -110,3 +110,16 @@ STATICFILES_DIRS = [
 
 # 指定用户认证的类:直接写应用.类
 AUTH_USER_MODEL = 'df_user.User'
+
+#发送邮件的驱动
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#邮件服务器
+EMAIL_HOST = 'smtp.163.com'
+#smtp服务器的端口
+EMAIL_PORT = 25
+#发送邮件的邮箱
+EMAIL_HOST_USER = 'm17521334190@163.com'
+#在邮箱中设置的客户端授权密码
+EMAIL_HOST_PASSWORD = 'xlm015403'
+#收件人看到的发件人
+EMAIL_FROM = 'apple<m17521334190@163.com>'
