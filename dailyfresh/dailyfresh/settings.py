@@ -123,3 +123,18 @@ EMAIL_HOST_USER = 'm17521334190@163.com'
 EMAIL_HOST_PASSWORD = 'xlm015403'
 #收件人看到的发件人
 EMAIL_FROM = 'apple<m17521334190@163.com>'
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/7",#修改redis服务器的ip与数据库编号
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+#配置session的保存方式：设置成与cache一致
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+#登录地址
+LOGIN_URL='/user/login'
