@@ -8,7 +8,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-
+from utils.views import LoginRequiredView,LoginRequiredViewMixin
 from utils import celery_tasks
 from .models import User, Address, AreaInfo
 
@@ -165,7 +165,7 @@ def order(request):
     return render(request, 'user_center_order.html', context)
 
 
-class SiteView(View):
+class SiteView(LoginRequiredViewMixin,View):
     def get(self, request):
         # 获取当前登录的用户
         user = request.user

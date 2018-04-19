@@ -138,3 +138,10 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 #登录地址
 LOGIN_URL='/user/login'
+
+#设置Fdfs的客户端配置文件
+FDFS_CLIENT=os.path.join(BASE_DIR, 'utils/fdfs_client.conf')
+#指定保存文件的类型
+DEFAULT_FILE_STORAGE='utils.fdfsStorage.FdfsStorage'
+#指定Ningx访问fdfs的路径
+FDFS_URL='http://127.0.0.1:8888/'
