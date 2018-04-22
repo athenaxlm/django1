@@ -1,0 +1,106 @@
+{% extends 'base_user.html' %}
+{% block script %}
+    <script>
+        $(function () {
+            $.get('/user/area', function (data) {
+                var province = $('#province');
+                $.each(data.list, function (i, n) {
+                    province.append('<option value="' + n.id + '">' + n.title + '</option>')
+                })
+
+
+            });
+            $('#province').change(function () {
+                var province_id = $(this).val();
+                $.get('/user/area', {'pid': province_id}, function (data) {
+                    var city = $('#city').empty().append('<option value="0">请选择</option>');
+                    $('#district').empty().append('<option value="0">请选择</option>');
+
+                    $.each(data.list, function (i, n) {//第二个参数，是一个函数，表示在每个元素上会执行这个函数
+                        //i代表元素的索引
+                        //n代表元素的值{id:***,title:***}
+                        city.append('<option value="' + n.id + '">' + n.title + '</option>');
+                    })
+                });
+
+            });
+            $('#city').change(function () {
+                var city_id = $(this).val();
+                $.get('/user/area', {'pid': city_id}, function (data) {
+                    var district = $('#district').empty().append('<option value="0">请选择</option>');
+
+                    $.each(data.list, function (i, n) {//第二个参数，是一个函数，表示在每个元素上会执行这个函数
+                        //i代表元素的索引
+                        //n代表元素的值{id:***,title:***}
+                        district.append('<option value="' + n.id + '">' + n.title + '</option>');
+                    })
+                });
+
+            })
+        })
+
+
+    </script>
+
+
+{% endblock %}
+{% block body1 %}
+
+    <div class="main_con clearfix">
+        <div class="left_menu_con clearfix">
+            <h3>用户中心</h3>
+            <ul>
+                <li><a href="/user/">· 个人信息</a></li>
+                <li><a href="/user/order">· 全部订单</a></li>
+                <li><a href="/user/site" class="active">· 收货地址</a></li>
+            </ul>
+        </div>
+        <div class="right_content clearfix">
+            <h3 class="common_title2">收货地址</h3>
+            <div class="site_con">
+                <dl>
+                    {% for addr in addr_list %}
+                        <dd>{{ addr.province }} {{ addr.city }} {{ addr.district }} {{ addr.detail_addr }}
+                            （{{ addr.receiver_name }} 收） {{ addr.receiver_mobile }}</dd>
+                    {% empty %}
+                        <dd>尚未添加收货地址</dd>
+                    {% endfor %}
+                </dl>
+            </div>
+            <h3 class="common_title2">编辑地址</h3>
+            <div class="site_con">
+                <form>
+                    <div class="form_group">
+                        <label>收件人：</label>
+                        <input type="text" name="">
+                    </div>
+
+                    <div class="form_group form_group2">
+                        <label>详细地址：</label>
+                        <select id="province" name="province">
+                            <option value="0">请选择</option>
+                        </select>
+                        <select id="city" name="city">
+                            <option value="0">请选择</option>
+                        </select>
+                        <select id="district" name="district">
+                            <option value="0">请选择</option>
+                        </select>
+                        <input type="text" name="detail_addr">
+                    </div>
+                    <div class="form_group">
+                        <label>邮编：</label>
+                        <input type="text" name="">
+                    </div>
+                    <div class="form_group">
+                        <label>手机：</label>
+                        <input type="text" name="">
+                    </div>
+
+                    <input type="submit" name="" value="提交" class="info_submit">
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

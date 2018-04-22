@@ -1,9 +1,8 @@
 from django.core.cache import cache
-from django.http import Http404
 from django.shortcuts import render
-
-from .models import GoodsCategory, IndexGoodsBanner, IndexPromotionBanner, IndexCategoryGoodsBanner, GoodsSKU
-
+import os
+from .models import GoodsCategory, IndexGoodsBanner, IndexPromotionBanner, IndexCategoryGoodsBanner
+from django.conf import settings
 
 # Create your views here.
 def index(request):
@@ -43,38 +42,3 @@ def index(request):
     #     html_index.write(html_str)
 
     return response
-
-
-def detail(request, sku_id):
-    try:
-        sku = GoodsSKU.objects.get(pk=sku_id)
-    except:
-        return Http404()
-
-    category_list = GoodsCategory.objects.all()
-
-    prom_list = sku.category.goodssku_set.all().order_by('-id')[0:2]
-
-    sku_list = sku.goods.goodssku_set.all()
-
-    context = {
-        'title': '商品介绍',
-        'sku': sku,
-        'category_list': category_list,
-        'sku_list': sku_list,
-        'prom_list': prom_list
-    }
-
-    return render(request, 'detail.html', context)
-
-
-def list(request, category_id):
-    category = GoodsCategory.objects.get(pk=category_id)
-
-    new_list = GoodsSKU.objects.filter(category_id=category_id).order_by('-id')[0:2]
-    new_list1 = GoodsSKU.objects.filter(category=category).order_by('-id')[0:2]
-
-    context = {
-
-    }
-    return render(request, 'list.html', context)
