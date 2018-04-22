@@ -1,12 +1,12 @@
 from django.core.cache import cache
-from django.http import Http404
 from django.shortcuts import render
-
-from .models import GoodsCategory, IndexGoodsBanner, IndexPromotionBanner, IndexCategoryGoodsBanner, GoodsSKU
+import os
+from df_goods.models import GoodsCategory, IndexGoodsBanner, IndexPromotionBanner, IndexCategoryGoodsBanner
+from django.conf import settings
 
 
 # Create your views here.
-def index(request):
+def gen_index():
     context = cache.get('index_page_data')
 
     if context is None:
@@ -34,36 +34,11 @@ def index(request):
         }
         cache.set('index_page_data', context, 3600)
 
-    response = render(request, 'index.html', context)
+    response = render(None, 'index.html', context)
 
-    # # 响应体
-    # html_str =response.content.decode()
-    #
-    # with open(os.path.join(settings.BASE_DIR,'static/index.html'),'w') as html_index:
-    #     html_index.write(html_str)
+    # 响应体
+    html_str = response.content.decode()
 
-    return response
+    with open(os.path.join(settings.BASE_DIR, 'static/index.html'), 'w') as html_index:
+        html_index.write(html_str)
 
-
-def detail(request, sku_id):
-    try:
-        sku = GoodsSKU.objects.get(pk=sku_id)
-    except:
-        return Http404()
-
-    category_list = GoodsCategory.objects.all()
-
-    prom_list = sku.category.goodssku_set.all().order_by('-id')[0:2]
-
-    sku_list = sku.goods.goodssku_set.all()
-
-
-    context = {
-        'title': '商品介绍',
-        'sku': sku,
-        'category_list': category_list,
-        'sku_list': sku_list,
-        'prom_list': prom_list
-    }
-
-    return render(request, 'detail.html', context)
