@@ -1,3 +1,4 @@
+import json
 import re
 
 from django.conf import settings
@@ -7,9 +8,12 @@ from django.db.utils import IntegrityError
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.generic import View
+from django_redis import get_redis_connection
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from utils.views import LoginRequiredView,LoginRequiredViewMixin
+from django.http import HttpRequest
+from df_goods.models import GoodsSKU
 from utils import celery_tasks
+from utils.views import LoginRequiredViewMixin
 from .models import User, Address, AreaInfo
 
 
@@ -19,6 +23,7 @@ class RegisterView(View):
 
     def get(self, request):
         """处理GET请求，返回注册页面"""
+
         return render(request, 'register.html')
 
     def post(self, request):
@@ -61,6 +66,7 @@ class RegisterView(View):
 
 
 def username(request):
+    sid = request.user.id
     uname = request.GET.get('uname')
     result = User.objects.filter(username=uname).count()
     return JsonResponse({'result': result})
@@ -144,6 +150,33 @@ class loginView(View):
         else:
             response.set_cookie('username', username, expires=60 * 60 * 24 * 7)
 
+            # 扩展代码：将cookie中的购物车数据，存入redis中
+            # 读取cookie中的购物车信息
+            cart_str = request.COOKIES.get('cart')
+            # 判断是否存在购物车信息
+            if cart_str is not None:
+                # 获取redis的连接
+                redis_client = get_redis_connection()
+                # 创建购物车的键
+                key = 'cart%d' % request.user.id
+                # 将购物车字符串转换成字典
+                cart_dict = json.loads(cart_str)
+                # 逐个遍历购物车中的商品编号k与数量v
+                for k, v in cart_dict.items():
+                    # 从redis中获取商品k的数量，如果没有这个商品则返回None
+                    count_redis = redis_client.hget(key, k)
+                    # 如果这个商品在redis中存在，则数量相加
+                    if count_redis is not None:
+                        # 数量相加，注意从redis中读取的数据类型为bytes，需要改为int
+                        v += int(count_redis)
+                        # 上限判断
+                        if v > 5:
+                            v = 5
+                    # 将当前用户的购物车中商品编号与对应的数量写入redis中
+                    redis_client.hset(key, k, v)
+                # 删除cookie中的购物车信息
+                response.delete_cookie('cart')
+
         # 如果用户正确则返回首页
         return response
 
@@ -153,9 +186,43 @@ def logout_view(request):
     return redirect('/user/login')
 
 
-@login_required()
+@login_required
 def info(request):
-    context = {}
+
+    # 判断用户是否登录，如果未登录则转到登录页
+    # if not request.user.is_authenticated():
+    #     return redirect('/user/login')
+
+    # 查询最近浏览的信息
+    browser_key = 'browser%d' % request.user.id
+    # 获取redis的连接
+    redis_client = get_redis_connection()
+    # 获取列表数据
+    skuid_list = redis_client.lrange(browser_key, 0, -1)
+    # 根据编号查询商品对象
+    sku_list = []
+    for skuid in skuid_list:
+        sku_list.append(GoodsSKU.objects.get(pk=skuid))
+
+    # 查询收货地址的第一条数据显示
+    addr_list = request.user.address_set.all()
+    print(addr_list)
+    mobile = ''
+    addr = ''
+    if addr_list:
+        addr1 = addr_list[0]
+        mobile = addr1.receiver_mobile
+        addr = '%s %s %s %s' % (addr1.province.atitle,
+                                addr1.city.atitle,
+                                addr1.district.atitle,
+                                addr1.detail_addr)
+
+    context = {
+        'title': '个人信息',
+        'sku_list': sku_list,
+        'mobile': mobile,
+        'addr': addr,
+    }
     return render(request, 'user_center_info.html', context)
 
 
@@ -165,7 +232,7 @@ def order(request):
     return render(request, 'user_center_order.html', context)
 
 
-class SiteView(LoginRequiredViewMixin,View):
+class SiteView(LoginRequiredViewMixin, View):
     def get(self, request):
         # 获取当前登录的用户
         user = request.user

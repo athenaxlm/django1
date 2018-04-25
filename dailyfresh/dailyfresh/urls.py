@@ -13,6 +13,7 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
+import haystack.urls
 from django.conf.urls import include, url
 from django.contrib import admin
 
@@ -22,4 +23,5 @@ urlpatterns = [
     url('^user/', include('df_user.urls')),
     url('^cart/', include('df_cart.urls')),
     url('^order', include('df_order.urls')),
+    url(r'^search/', include(haystack.urls)),
 ]

@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'df_order',
     'df_user',
     'tinymce',
+    'haystack',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -58,7 +59,7 @@ ROOT_URLCONF = 'dailyfresh.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR,'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -111,37 +112,51 @@ STATICFILES_DIRS = [
 # 指定用户认证的类:直接写应用.类
 AUTH_USER_MODEL = 'df_user.User'
 
-#发送邮件的驱动
+# 发送邮件的驱动
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#邮件服务器
+# 邮件服务器
 EMAIL_HOST = 'smtp.163.com'
-#smtp服务器的端口
+# smtp服务器的端口
 EMAIL_PORT = 25
-#发送邮件的邮箱
+# 发送邮件的邮箱
 EMAIL_HOST_USER = 'm17521334190@163.com'
-#在邮箱中设置的客户端授权密码
+# 在邮箱中设置的客户端授权密码
 EMAIL_HOST_PASSWORD = 'xlm015403'
-#收件人看到的发件人
+# 收件人看到的发件人
 EMAIL_FROM = 'apple<m17521334190@163.com>'
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/7",#修改redis服务器的ip与数据库编号
+        "LOCATION": "redis://127.0.0.1:6379/7",  # 修改redis服务器的ip与数据库编号
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     }
 }
-#配置session的保存方式：设置成与cache一致
+# 配置session的保存方式：设置成与cache一致
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
-#登录地址
-LOGIN_URL='/user/login'
+# 登录地址
+LOGIN_URL = '/user/login'
 
-#设置Fdfs的客户端配置文件
-FDFS_CLIENT=os.path.join(BASE_DIR, 'utils/fdfs_client.conf')
-#指定保存文件的类型
-DEFAULT_FILE_STORAGE='utils.fdfsStorage.FdfsStorage'
-#指定Ningx访问fdfs的路径
-FDFS_URL='http://127.0.0.1:8888/'
+# 设置Fdfs的客户端配置文件
+FDFS_CLIENT = os.path.join(BASE_DIR, 'utils/fdfs_client.conf')
+# 指定保存文件的类型
+DEFAULT_FILE_STORAGE = 'utils.fdfsStorage.FdfsStorage'
+# 指定Ningx访问fdfs的路径
+FDFS_URL = 'http://127.0.0.1:8888/'
+
+# 配置搜索引擎后端
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        # 使用whoosh引擎：提示，如果不需要使用jieba框架实现分词，就使用whoosh_backend
+        'ENGINE': 'haystack.backends.whoosh_cn_backend.WhooshEngine',
+        # 索引文件路径
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    }
+}
+# 当添加、修改、删除数据时，自动生成索引
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+# 设置haystack的模板中显示多少条数据
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 18

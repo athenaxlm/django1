@@ -27,7 +27,7 @@
                 num--;
                 $('.num_show').val(num).change();
             })
-        })
+        });
 
 
     </script>
@@ -123,25 +123,35 @@
 
     <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
     <script type="text/javascript">
-        var $add_x = $('#add_cart').offset().top;
-        var $add_y = $('#add_cart').offset().left;
-
-        var $to_x = $('#show_num').offset().top;
-        var $to_y = $('#show_num').offset().left;
-
-        $(".add_jump").css({'left': $add_y + 80, 'top': $add_x + 10, 'display': 'block'})
         $('#add_cart').click(function () {
-            $(".add_jump").stop().animate({
-                    'left': $to_y + 7,
-                    'top': $to_x + 7
-                },
-                "fast", function () {
-                    $(".add_jump").fadeOut('fast', function () {
-                        $('#show_num').html(2);
-                    });
+            $.post('/cart/add', {
+                'sku_id': '{{ sku.id }}',
+                'count': $('.num_show').val(),
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+            }, function (data) {
+                if (data.result == 'ok') {
+                    var $add_x = $('#add_cart').offset().top;
+                    var $add_y = $('#add_cart').offset().left;
 
-                });
-        })
+                    var $to_x = $('#show_count').offset().top;
+                    var $to_y = $('#show_count').offset().left;
+
+                    $(".add_jump").css({'left': $add_y + 80, 'top': $add_x + 10, 'display': 'block'})
+                    $(".add_jump").stop().animate({
+                            'left': $to_y + 7,
+                            'top': $to_x + 7
+                        },
+                        "fast", function () {
+                            $(".add_jump").fadeOut('fast', function () {
+                                $('#show_count').html(data.total_count);
+                            });
+
+                        });
+                }
+            })
+        });
+
+
     </script>
 
 {% endblock %}
