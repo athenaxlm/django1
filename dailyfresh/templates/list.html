@@ -6,7 +6,7 @@
             $.post('/cart/add', {
                 'sku_id': sku_id,
                 'count': 1,
-                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
             }, function (data) {
                 if (data.result == 'ok') {
                     $('#show_count').html(data.total_count);
