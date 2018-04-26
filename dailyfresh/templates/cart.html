@@ -58,7 +58,7 @@
                     })
                 }
             });
-            
+
             //失去焦点事件
             $('.num_show').blur(function () {
                 var count = parseInt($(this).val());
@@ -128,7 +128,7 @@
     <form action="/order" method="get">
         {% for sku in cart_list %}
             <ul class="cart_list_td clearfix" id="{{ sku.id }}">
-                <li class="col01"><input type="checkbox" name="" checked></li>
+                <li class="col01"><input type="checkbox" name="sku_id" value="{{ sku.id }}" checked></li>
                 <li class="col02"><img src="{{ sku.default_image.url }}"></li>
                 <li class="col03">{{ sku.name }}<br><em>{{ sku.stock }}</em></li>
                 <li class="col04">{{ sku.unit }}</li>

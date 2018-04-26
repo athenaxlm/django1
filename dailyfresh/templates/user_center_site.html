@@ -60,7 +60,7 @@
             <div class="site_con">
                 <dl>
                     {% for addr in addr_list %}
-                        <dd>{{ addr.province }} {{ addr.city }} {{ addr.district }} {{ addr.detail_addr }}
+                        <dd>{{ addr.province.atitle }} {{ addr.city.atitle }} {{ addr.district.atitle }} {{ addr.detail_addr }}
                             （{{ addr.receiver_name }} 收） {{ addr.receiver_mobile }}</dd>
                     {% empty %}
                         <dd>尚未添加收货地址</dd>
@@ -69,10 +69,11 @@
             </div>
             <h3 class="common_title2">编辑地址</h3>
             <div class="site_con">
-                <form>
+                <form method="post">
+                    {% csrf_token %}
                     <div class="form_group">
                         <label>收件人：</label>
-                        <input type="text" name="">
+                        <input type="text" name="receiver_name">
                     </div>
 
                     <div class="form_group form_group2">
@@ -90,11 +91,11 @@
                     </div>
                     <div class="form_group">
                         <label>邮编：</label>
-                        <input type="text" name="">
+                        <input type="text" name="zip_code">
                     </div>
-                    <div class="form_group">
+                    <div class="form_group" >
                         <label>手机：</label>
-                        <input type="text" name="">
+                        <input type="text" name="receiver_mobile">
                     </div>
 
                     <input type="submit" name="" value="提交" class="info_submit">

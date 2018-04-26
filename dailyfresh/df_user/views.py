@@ -238,7 +238,7 @@ class SiteView(LoginRequiredViewMixin, View):
         user = request.user
         # 查找当前用户的所有收货地址
         addr_list = user.address_set.all()
-        print(addr_list)
+
         context = {
             'addr_list': addr_list,
             'title': '收货地址'
